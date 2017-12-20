@@ -31,8 +31,11 @@ const { defaultState, actions, actionTypes, reducer } = createFromSchema({
     }),
   },
 })
+```
 
-// results in
+The above results in the following data and functions below:
+
+```
 {
   defaultState: {
     processId: 'abcd1234',
@@ -43,26 +46,28 @@ const { defaultState, actions, actionTypes, reducer } = createFromSchema({
     users: {},
   },
   actionTypes: {
-    SET_PROCESS_ID
-    CLEAR_PROCESS_ID
-    RESET_PROCESS_ID
+    SET_PROCESS_ID: 'SET_PROCESS_ID',
+    UPDATE_PROCESS_ID,
+    CLEAR_PROCESS_ID,
+    RESET_PROCESS_ID,
     // ---
-    SET_GROUP
-    UPDATE_GROUP
-    CLEAR_GROUP
-    RESET_GROUP
+    SET_GROUP,
+    UPDATE_GROUP,
+    CLEAR_GROUP,
+    RESET_GROUP,
     // ---
-    SET_USER
-    UPDATE_USER
-    CLEAR_USER
-    RESET_USER
-    SET_USERS
-    UPDATE_USERS
-    RESET_USERS
-    CLEAR_USERS
-  },
+    SET_USER,
+    UPDATE_USER,
+    CLEAR_USER,
+    RESET_USER,
+    SET_USERS,
+    UPDATE_USERS,
+    RESET_USERS,
+    CLEAR_USERS,
+  }, 
   actions: {
     setProcessId(processId) => { type: SET_PROCESS_ID, payload: { processId } }
+    updateProcessId(processId) => { type, payload }
     clearProcessId() => { type }
     resetProcessId() => { type, payload: { processId: 'abcd1234' } }
     ---
