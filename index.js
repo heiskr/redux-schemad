@@ -4,19 +4,23 @@ const clear = 'clear'
 const reset = 'reset'
 const verbs = [set, update, clear, reset]
 
-export function field(rules, defaultValue) {
+function field(rules, defaultValue) {
   return { __field: true, rules, defaultValue }
 }
 
-export function embed(fields) {
+function embed(fields) {
   return { __embed: true, fields }
 }
 
-export function embedMany(onField, fields) {
+function embedMany(onField, fields) {
   return { __embedMany: true, onField, fields }
 }
 
-export function titleize(cameled) {
+function ucfirst(s) {
+  return s.charAt(0).toUpperCase() + s.slice(1)
+}
+
+function titleize(cameled) {
   return cameled
     .replace(
       /\.?([A-Z]+)/g,
@@ -26,11 +30,11 @@ export function titleize(cameled) {
     .toUpperCase()
 }
 
-export function exists(value) {
+function exists(value) {
   return typeof value !== 'undefined' && value != null
 }
 
-export function omit(obj, omitKey) {
+function omit(obj, omitKey) {
   return Object.keys(obj).reduce((result, key) => {
     if(key !== omitKey) {
        result[key] = obj[key]
@@ -39,14 +43,18 @@ export function omit(obj, omitKey) {
   }, {})
 }
 
-export function createDefaultState(schema) {
+function getFieldDefault(field) {
+  return (exists(field.defaultValue) && field.defaultValue) || null
+}
+
+function createDefaultState(schema) {
   function _(sub) {
     return Object.keys(sub).reduce((sum, name) => {
       const field = sub[name]
       if (field.__field) {
-        sum[name] = (exists(field.defaultValue) && field.defaultValue) || null
+        sum[name] = getFieldDefault(field)
       } else if (field.__embed) {
-        sum[name] = _(sub[name])
+        sum[name] = _(sub[name].fields)
       } else if (field.__embedMany) {
         sum[name] = {}
       }
@@ -56,41 +64,45 @@ export function createDefaultState(schema) {
   return _(schema)
 }
 
-export function createAction(verb, name, dispatch) {
-  const type = verb.toUpperCase() + '_' + titleize(name)
+function createAction({ type, verb, name, dispatch }) {
   return function(payload) {
     return dispatch({ type, verb, name, payload })
   }
 }
 
-export function createBatchActions(name, dispatch) {
+function createBatchActions(name, dispatch) {
   const actions = {}
   const actionTypes = {}
   verbs.forEach((verb) => {
-    actions[verb + ucfirst(name)] = createAction(verb, name, dispatch)
+    const type = verb.toUpperCase() + '_' + titleize(name)
+    actions[verb + ucfirst(name)] = createAction({ type, verb, name, dispatch })
     actionTypes[type] = type
   })
   return [actions, actionTypes]
 }
 
-export function createEmbedManyActions(name, dispatch) {
+function createEmbedManyActions(name, dispatch) {
   const actions = {}
   const actionTypes = {}
   const singularName = name.replace(/s$/, '')
   verbs.forEach((verb) => {
-    actions[verb + ucfirst(name)] = createAction(verb, name, dispatch)
-    actions[verb + ucfirst(singularName)] = createAction(verb, singularName, dispatch)
+    const type = verb.toUpperCase() + '_' + titleize(name)
+    actions[verb + ucfirst(name)] = createAction({ type, verb, name, dispatch })
     actionTypes[type] = type
+    const singularType = verb.toUpperCase() + '_' + titleize(singularName)
+    actions[verb + ucfirst(singularName)] = createAction({
+      type: singularType, verb, name: singularName, dispatch
+    })
     actionTypes[singularType] = singularType
   })
   return [actions, actionTypes]
 }
 
-export function createActions(schema, dispatch) {
+function createActions(schema, dispatch) {
   let actions = {}
   let actionTypes = {}
-  return Object.keys(sub).forEach((name) => {
-    const field = sub[name]
+  Object.keys(schema).forEach((name) => {
+    const field = schema[name]
     let _actions = {}
     let _actionTypes = {}
     if (field.__field || field.__embed) {
@@ -104,93 +116,121 @@ export function createActions(schema, dispatch) {
   return [actions, actionTypes]
 }
 
-export function findErrors(schema, state) {
+function findErrors(schema, state) {
   function _(subSchema, subState) {
     let errors = []
     Object.keys(subSchema).forEach((name) => {
       const field = subSchema[name]
       if (field.__field) {
         const error = field.rules.find(rule => rule(subState[name]))
-        if (error) { errors.push([error, name, subState[name]]) }
+        if (error) {
+          errors.push([error(subState[name]), name, subState[name]].join(' '))
+        }
       } else if (field.__embed) {
         errors = errors.concat(_(field.fields, subState[name]))
       } else if (field.__embedMany) {
-        errors = errors.concat(Object.keys(subState[name] || {}).every(
-          id => _(field.fields, subState[name][id])
-        ))
+        errors = errors.concat(
+          Object.keys(subState[name] || {}).map(
+            id => _(field.fields, subState[name][id])
+          )
+        )
       }
     })
     return errors
   }
   const errors = _(schema, state)
-  if (errors.length) { console.warn(errors.join('\n')) }
+  if (errors.length) {
+    console.warn('Reducer Did Not Update: \n' + errors.join('\n'))
+  }
   return errors
 }
 
-export function getNewReducerState(state, name, field, verb, payload) {
+const objConst = {}.constructor
+
+function getNewReducerState(state, field, { name, verb, payload }) {
   if (field.__field) {
     if (verb === set) {
-      return { ...state, [name]: payload }
+      return Object.assign({}, state, { [name]: payload })
     } else if (verb === update) {
-      if (state[name].constructor === {}.constructor) {
-        return { ...state, [name]: { ...(state[name] || {}), ...payload } }
+      if (state[name].constructor === objConst) {
+        return Object.assign({}, state, { [name]: Object.assign({}, state[name] || {}, payload) })
       } else {
-        return { ...state, [name]: payload }
+        return Object.assign({}, state, { [name]: payload })
       }
     } else if (verb === reset) {
-      return { ...state, [name]: (exists(field.defaultValue) && field.defaultValue) || null }
+      return Object.assign({}, state, { [name]: getFieldDefault(field) })
     } else if (verb === clear) {
-      return { ...state, [name]: null }
+      return Object.assign({}, state, { [name]: null })
     }
   } else if (field.__embed) {
     if (verb === set) {
-      return { ...state, [name]: payload}
+      return Object.assign({}, state, { [name]: payload })
     } else if (verb === update) {
-      return { ...state, [name]: { ...(state[name] || {}), ...payload } }
+      return Object.assign({}, state, { [name]: Object.assign({}, state[name] || {}, payload) })
     } else if (verb === reset) {
-      return { ...state, [name]: createDefaultState(field.fields) }
+      return Object.assign({}, state, { [name]: createDefaultState(field.fields) })
     } else if (verb === clear) {
-      return { ...state, [name]: {} }
+      return Object.assign({}, state, { [name]: {} })
     }
   } else if (field.__embedMany && name.substr(-1) === 's') {
     if (verb === set) {
-      return { ...state, [name]: payload }
+      return Object.assign({}, state, { [name]: payload })
     } else if (verb === update) {
-      return { ...state, [name]: { ...(state[name] || {}), ...payload } }
+      return Object.assign({}, state, { [name]: Object.assign({}, state[name] || {}, payload)  })
     } else if (verb === reset || verb === clear) {
-      return { ...state, [name]: {},  }
+      return Object.assign({}, state, { [name]: {} })
     }
   } else if (field.__embedMany) {
     const id = payload[field.onField]
+    const allName = name + 's'
     if (verb === set) {
-      return { ...state, [name]: { ...(state[name] || {}), [id]: payload } } }
+      return Object.assign({}, state, {
+        [allName]: Object.assign(
+          {},
+          state[allName] || {},
+          { [id]: payload }
+        )
+      })
     } else if (verb === update) {
-      return { ...state, [name]: { ...(state[name] || {}), [id]: {
-        ...(state[name][id] || {}),
-        ...payload,
-      } } }
-    } else if (verb === reset || verb === clear) {
-      return { ...state, [name]: omit(state[name] || {}, id) }
+      return Object.assign({}, state, {
+        [allName]: Object.assign(
+          {},
+          state[allName] || {},
+          { [id]: Object.assign({}, state[allName][id] || {}, payload) }
+        )
+      })
+    } else if (verb === reset) {
+      return Object.assign({}, state, {
+        [allName]: Object.assign(
+          {},
+          omit(state[allName] || {}, id),
+          { [id]: Object.assign({}, createDefaultState(field.fields), { id: id }) },
+        )
+      })
+    } else if (verb === clear) {
+      return Object.assign({}, state, {
+        [allName]: omit(state[allName] || {}, id)
+      })
     }
   }
 }
 
-export function createReducer(defaultState, schema) {
+function createReducer(defaultState, schema) {
   return function(state = defaultState, action = { type: '' }) {
-    const { type, name, verb, payload } = action
+    const { type, name, verb } = action
     const field = schema[name] || schema[name + 's']
     if (!type || !name || !verb) { return state }
     if (!field) {
       console.warn('No found schema field for', name)
       return state
     }
-    const newState = getNewReducerState(state, name, field, verb, payload)
+    const newState = getNewReducerState(state, field, action)
     if (findErrors(schema, newState).length) { return state }
     return newState
   }
 }
 
-export function createFromSchema({ schema, dispatch }) {
+function createFromSchema({ schema, dispatch }) {
   const [actions, actionTypes] = createActions(schema, dispatch)
   const defaultState = createDefaultState(schema)
   return {
@@ -199,4 +239,37 @@ export function createFromSchema({ schema, dispatch }) {
     defaultState,
     reducer: createReducer(defaultState, schema),
   }
+}
+
+/* ----------------------------------------------------------- */
+
+function isRequired(value) {
+  if (
+    !exists(value) ||
+    typeof value === 'string' && !value
+  ) {
+    return 'isRequired'
+  }
+  return null
+}
+
+module.exports = {
+  field,
+  embed,
+  embedMany,
+  titleize,
+  ucfirst,
+  exists,
+  omit,
+  createDefaultState,
+  createAction,
+  createBatchActions,
+  createEmbedManyActions,
+  createActions,
+  findErrors,
+  getNewReducerState,
+  createReducer,
+  createFromSchema,
+  // ---
+  isRequired,
 }

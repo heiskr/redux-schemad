@@ -2,7 +2,9 @@
 redux-schemad
 -------------
 
-I got tired of writing reducers, action creators, and looking up my state schema. I also didn't want to invest in a huge library. Here's some functions.
+Create automatic reducers, actions, and default state from a state schema.
+
+I got tired of writing reducers, action creators, and looking up my state schema. I also didn't want to invest in a huge library. So here's some functions.
 
 Example:
 
