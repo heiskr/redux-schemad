@@ -88,5 +88,18 @@ The above results in the following data and functions below:
   },
   reducer: fn...
 }
+```
 
+You can add whatever rule functions you want to the schema. Return `null` if there's no error, a string if there is.
+
+```javascript
+function exists(value) {
+  return typeof value !== 'undefined' && value != null
+}
+
+function isString(value) {
+  if (!exists(value)) { return null }
+  if (typeof value !== 'string') { return 'isString' }
+  return null
+}
 ```
