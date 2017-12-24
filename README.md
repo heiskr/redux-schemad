@@ -72,12 +72,12 @@ The above results in the following data and functions below:
     updateProcessId(processId) => { type, payload },
     clearProcessId() => { type },
     resetProcessId() => { type, payload: { processId: 'abcd1234' } },
-    ---
+    // ---
     setGroup({ bagId = 'wxyz0987', bagCount = 4 }) => { type, payload: { bagId, bagCount } },
     updateGroup({ bagId = 'qwer2345' }) => { type, payload: { bagId } },
     clearGroup() => { type },
     resetGroup() => { type, payload: { bagCount: 0 } },
-    ---
+    // ---
     setUser({ id: 1, email: 'f@c.c' }) => { type, payload: { ... } },
     updateUser({ id: 1, email: 'g@c.c' }) => { type, payload: { ... } },
     clearUser({ id: 1 }) => { type, payload },
