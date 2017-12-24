@@ -15,8 +15,12 @@ Example:
 import {
   createFromSchema,
   field, embed, embedMany,
-  isRequired, isString, isNumber, isEmail,
+  isRequired,
 } from 'redux-schemad'
+
+import {
+  isString, isNumber, isEmail,
+} from './myValidationFunctions'
 
 const { defaultState, actions, actionTypes, reducer } = createFromSchema({
   dispatch,
