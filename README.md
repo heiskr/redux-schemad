@@ -2,6 +2,8 @@
 redux-schemad
 -------------
 
+[![Build Status](https://img.shields.io/travis/heiskr/redux-schemad.svg?style=flat)](https://travis-ci.org/heiskr/redux-schemad)
+
 Create automatic reducers, actions, and default state from a state schema.
 
 I got tired of writing reducers, action creators, and looking up my state schema. I also didn't want to invest in a huge library. So here's some functions.
@@ -64,7 +66,7 @@ The above results in the following data and functions below:
     UPDATE_USERS,
     RESET_USERS,
     CLEAR_USERS,
-  }, 
+  },
   actions: {
     setProcessId(processId) => { type: SET_PROCESS_ID, payload: { processId } }
     updateProcessId(processId) => { type, payload }
