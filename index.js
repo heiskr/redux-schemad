@@ -158,7 +158,6 @@ function findErrors(schema, state) {
   if (errors.length) {
     /* eslint-disable no-console */
     console.warn(`Reducer Did Not Update: \n${errors.join('\n')}`)
-    console.warn(errors)
     /* eslint-enable */
   }
   return errors
@@ -169,9 +168,9 @@ function setField(state, name, xfield, payload) {
 }
 
 function updateField(state, name, xfield, payload) {
-  if (state[name].constructor === OBJ_CONST) {
+  if (exists(state[name]) && state[name].constructor === OBJ_CONST) {
     return Object.assign({}, state, {
-      [name]: Object.assign({}, state[name] || {}, payload),
+      [name]: Object.assign({}, state[name], payload),
     })
   }
   return setField(state, name, xfield, payload)
@@ -259,7 +258,7 @@ function getNewCollectionState({ state, xfield, payload, verb, quantity }) {
 function getNewReducerState(
   state,
   xfield,
-  { payload, meta: { name, verb, quantity } = {} }
+  { payload, meta: { name, verb, quantity } }
 ) {
   if (xfield.__field) {
     return getNewFieldState({ state, xfield, name, payload, verb })
@@ -280,7 +279,7 @@ function getNewReducerState(
 
 function createReducer(defaultState, schema) {
   return (state = defaultState, action = {}) => {
-    const { type, meta: { name, verb } } = action
+    const { type, meta: { name, verb } = {} } = action
     if (!type || !name || !verb) {
       return state
     }
@@ -319,6 +318,14 @@ function isRequired(value) {
   return null
 }
 
+/*
+function isString(value) {
+  if (exists(value) && typeof value !== 'string') {
+    return 'isString'
+  }
+  return null
+}
+
 function isReferencing(collectionName) {
   return (value, state) => {
     if (exists(value) && !state[collectionName][value]) {
@@ -327,6 +334,7 @@ function isReferencing(collectionName) {
     return null
   }
 }
+*/
 
 module.exports = {
   field,
@@ -359,5 +367,6 @@ module.exports = {
   createFromSchema,
   // ---
   isRequired,
-  isReferencing,
+  // isString,
+  // isReferencing,
 }

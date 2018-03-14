@@ -5,13 +5,13 @@ const {
   // titleize,
   // exists,
   // omit,
-  // getFieldDefault,
+  getFieldDefault,
   // createDefaultState,
   // createAction,
   // createFieldActions,
   // createCollectionActions,
-  // createActions,
-  // findErrors,
+  createActions,
+  findErrors,
   // setField,
   // updateField,
   // resetField,
@@ -24,7 +24,7 @@ const {
   // resetChildren,
   // getNewFieldState,
   // getNewCollectionState,
-  // getNewReducerState,
+  getNewReducerState,
   // createReducer,
   createFromSchema,
   // ---
@@ -35,7 +35,7 @@ const {
 describe('Redux Schemad', () => {
   const dispatch = a => a
   const schema = {
-    loggedInUserId: field([], ''),
+    loggedInUserId: field([isRequired], 'erty1234'),
     settings: field([], {}),
     users: collection('id', {
       id: field([isRequired]),
@@ -73,13 +73,26 @@ describe('Redux Schemad', () => {
         expect(reducer(defaultState, action)).toMatchSnapshot()
       })
 
-      test('2 update a field', () => {
+      test('2 update a flat field', () => {
+        const action = actions.updateLoggedInUserId('abcd1234')
+        expect(action).toMatchSnapshot()
+        expect(reducer(defaultState, action)).toMatchSnapshot()
+      })
+
+      test('3 update an object field', () => {
         const action = actions.updateSettings({ email: false })
         expect(action).toMatchSnapshot()
         expect(reducer(defaultState, action)).toMatchSnapshot()
       })
 
-      test('3 reset a field', () => {
+      test('4 update an object field not before though', () => {
+        const state = {...defaultState, settings: null}
+        const action = actions.updateSettings({ email: false })
+        expect(action).toMatchSnapshot()
+        expect(reducer(state, action)).toMatchSnapshot()
+      })
+
+      test('5 reset a field', () => {
         const state = { ...defaultState, loggedInUserId: 'abcd1234' }
         const action = actions.resetLoggedInUserId()
         expect(action).toMatchSnapshot()
@@ -175,6 +188,55 @@ describe('Redux Schemad', () => {
         expect(action).toMatchSnapshot()
         expect(reducer(state, action)).toMatchSnapshot()
       })
+    })
+  })
+
+  describe('5 Edges', () => {
+    test('1 an action missing data', () => {
+      expect(reducer()).toBe(defaultState)
+      expect(reducer(defaultState, {})).toBe(defaultState)
+      expect(reducer(defaultState, {type: 'FOO', meta: { name: 'FOO '}})).toBe(defaultState)
+      expect(reducer(defaultState, {type: 'FOO', meta: { verb: 'FOO '}})).toBe(defaultState)
+    })
+
+    test('2 field not in schema', () => {
+      const prevWarn = global.console.warn
+      global.console.warn = jest.fn()
+      expect(reducer(defaultState, {type: 'FOO', meta: { name: 'FOO', verb: 'FOO '}})).toBe(defaultState)
+      expect(global.console.warn).toBeCalled()
+      global.console.warn = prevWarn
+    })
+
+    test('3 invalid update', () => {
+      const prevWarn = global.console.warn
+      global.console.warn = jest.fn()
+      const action = actions.setLoggedInUserId(null)
+      expect(reducer(defaultState, action)).toEqual(defaultState)
+      expect(global.console.warn).toBeCalled()
+      global.console.warn = prevWarn
+    })
+
+    test('4 invalid field verb', () => {
+      const action = actions.setLoggedInUserId('abcd1234')
+      action.meta.verb = 'FOO'
+      expect(reducer(defaultState, action)).toEqual(defaultState)
+    })
+
+    test('5 invalid field verb', () => {
+      const action = actions.addUser({
+        id: 'abcd1234',
+      })
+      action.meta.verb = 'FOO'
+      expect(reducer(defaultState, action)).toEqual(defaultState)
+    })
+
+    test('6 call worthless back-ups', () => {
+      expect(getNewReducerState({}, {}, { meta: {} })).toEqual({})
+      expect(findErrors({ a: {} }, {})).toEqual([])
+      expect(findErrors(schema, {...defaultState, users: null})).toEqual([])
+      expect(createActions({ a: {} }, () => {})).toEqual([{}, {}])
+      expect(getFieldDefault({})).toBe(null)
+      expect(getFieldDefault({ __field: true })).toBe(null)
     })
   })
 })

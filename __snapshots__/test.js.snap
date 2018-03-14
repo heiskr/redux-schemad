@@ -38,7 +38,7 @@ Object {
 
 exports[`Redux Schemad 3 Default State match snapshot 1`] = `
 Object {
-  "loggedInUserId": null,
+  "loggedInUserId": "erty1234",
   "settings": Object {},
   "users": Object {},
 }
@@ -64,7 +64,27 @@ Object {
 }
 `;
 
-exports[`Redux Schemad 4 Reducer 1 Field 2 update a field 1`] = `
+exports[`Redux Schemad 4 Reducer 1 Field 2 update a flat field 1`] = `
+Object {
+  "meta": Object {
+    "name": "loggedInUserId",
+    "quantity": undefined,
+    "verb": "UPDATE",
+  },
+  "payload": "abcd1234",
+  "type": "UPDATE_LOGGED_IN_USER_ID",
+}
+`;
+
+exports[`Redux Schemad 4 Reducer 1 Field 2 update a flat field 2`] = `
+Object {
+  "loggedInUserId": "abcd1234",
+  "settings": Object {},
+  "users": Object {},
+}
+`;
+
+exports[`Redux Schemad 4 Reducer 1 Field 3 update an object field 1`] = `
 Object {
   "meta": Object {
     "name": "settings",
@@ -78,9 +98,9 @@ Object {
 }
 `;
 
-exports[`Redux Schemad 4 Reducer 1 Field 2 update a field 2`] = `
+exports[`Redux Schemad 4 Reducer 1 Field 3 update an object field 2`] = `
 Object {
-  "loggedInUserId": null,
+  "loggedInUserId": "erty1234",
   "settings": Object {
     "email": false,
   },
@@ -88,7 +108,31 @@ Object {
 }
 `;
 
-exports[`Redux Schemad 4 Reducer 1 Field 3 reset a field 1`] = `
+exports[`Redux Schemad 4 Reducer 1 Field 4 update an object field not before though 1`] = `
+Object {
+  "meta": Object {
+    "name": "settings",
+    "quantity": undefined,
+    "verb": "UPDATE",
+  },
+  "payload": Object {
+    "email": false,
+  },
+  "type": "UPDATE_SETTINGS",
+}
+`;
+
+exports[`Redux Schemad 4 Reducer 1 Field 4 update an object field not before though 2`] = `
+Object {
+  "loggedInUserId": "erty1234",
+  "settings": Object {
+    "email": false,
+  },
+  "users": Object {},
+}
+`;
+
+exports[`Redux Schemad 4 Reducer 1 Field 5 reset a field 1`] = `
 Object {
   "meta": Object {
     "name": "loggedInUserId",
@@ -100,9 +144,9 @@ Object {
 }
 `;
 
-exports[`Redux Schemad 4 Reducer 1 Field 3 reset a field 2`] = `
+exports[`Redux Schemad 4 Reducer 1 Field 5 reset a field 2`] = `
 Object {
-  "loggedInUserId": null,
+  "loggedInUserId": "erty1234",
   "settings": Object {},
   "users": Object {},
 }
@@ -124,7 +168,7 @@ Object {
 
 exports[`Redux Schemad 4 Reducer 2 Collection 1 add a child 2`] = `
 Object {
-  "loggedInUserId": null,
+  "loggedInUserId": "erty1234",
   "settings": Object {},
   "users": Object {
     "abcd1234": Object {
@@ -155,7 +199,7 @@ Object {
 
 exports[`Redux Schemad 4 Reducer 2 Collection 2 add many children 2`] = `
 Object {
-  "loggedInUserId": null,
+  "loggedInUserId": "erty1234",
   "settings": Object {},
   "users": Object {
     "abcd1234": Object {
@@ -185,7 +229,7 @@ Object {
 
 exports[`Redux Schemad 4 Reducer 2 Collection 3 update a child 2`] = `
 Object {
-  "loggedInUserId": null,
+  "loggedInUserId": "erty1234",
   "settings": Object {},
   "users": Object {
     "abcd1234": Object {
@@ -218,7 +262,7 @@ Object {
 
 exports[`Redux Schemad 4 Reducer 2 Collection 4 update many children 2`] = `
 Object {
-  "loggedInUserId": null,
+  "loggedInUserId": "erty1234",
   "settings": Object {},
   "users": Object {
     "abcd1234": Object {
@@ -248,7 +292,7 @@ Object {
 
 exports[`Redux Schemad 4 Reducer 2 Collection 5 remove a child 2`] = `
 Object {
-  "loggedInUserId": null,
+  "loggedInUserId": "erty1234",
   "settings": Object {},
   "users": Object {
     "wxyz0987": Object {
@@ -276,7 +320,7 @@ Object {
 
 exports[`Redux Schemad 4 Reducer 2 Collection 6 remove many children 2`] = `
 Object {
-  "loggedInUserId": null,
+  "loggedInUserId": "erty1234",
   "settings": Object {},
   "users": Object {
     "wxyz0987": Object {
@@ -300,7 +344,7 @@ Object {
 
 exports[`Redux Schemad 4 Reducer 2 Collection 7 reset the collection 2`] = `
 Object {
-  "loggedInUserId": null,
+  "loggedInUserId": "erty1234",
   "settings": Object {},
   "users": Object {},
 }
