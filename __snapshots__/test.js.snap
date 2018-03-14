@@ -1,0 +1,307 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Redux Schemad 1 Actions match snapshot 1`] = `
+Array [
+  "setLoggedInUserId",
+  "updateLoggedInUserId",
+  "resetLoggedInUserId",
+  "setSettings",
+  "updateSettings",
+  "resetSettings",
+  "addUser",
+  "addUsers",
+  "updateUser",
+  "updateUsers",
+  "removeUser",
+  "removeUsers",
+  "resetUsers",
+]
+`;
+
+exports[`Redux Schemad 2 Action Types match snapshot 1`] = `
+Object {
+  "ADD_USER": "ADD_USER",
+  "ADD_USERS": "ADD_USERS",
+  "REMOVE_USER": "REMOVE_USER",
+  "REMOVE_USERS": "REMOVE_USERS",
+  "RESET_LOGGED_IN_USER_ID": "RESET_LOGGED_IN_USER_ID",
+  "RESET_SETTINGS": "RESET_SETTINGS",
+  "RESET_USERS": "RESET_USERS",
+  "SET_LOGGED_IN_USER_ID": "SET_LOGGED_IN_USER_ID",
+  "SET_SETTINGS": "SET_SETTINGS",
+  "UPDATE_LOGGED_IN_USER_ID": "UPDATE_LOGGED_IN_USER_ID",
+  "UPDATE_SETTINGS": "UPDATE_SETTINGS",
+  "UPDATE_USER": "UPDATE_USER",
+  "UPDATE_USERS": "UPDATE_USERS",
+}
+`;
+
+exports[`Redux Schemad 3 Default State match snapshot 1`] = `
+Object {
+  "loggedInUserId": null,
+  "settings": Object {},
+  "users": Object {},
+}
+`;
+
+exports[`Redux Schemad 4 Reducer 1 Field 1 set a field 1`] = `
+Object {
+  "meta": Object {
+    "name": "loggedInUserId",
+    "quantity": undefined,
+    "verb": "SET",
+  },
+  "payload": "abcd1234",
+  "type": "SET_LOGGED_IN_USER_ID",
+}
+`;
+
+exports[`Redux Schemad 4 Reducer 1 Field 1 set a field 2`] = `
+Object {
+  "loggedInUserId": "abcd1234",
+  "settings": Object {},
+  "users": Object {},
+}
+`;
+
+exports[`Redux Schemad 4 Reducer 1 Field 2 update a field 1`] = `
+Object {
+  "meta": Object {
+    "name": "settings",
+    "quantity": undefined,
+    "verb": "UPDATE",
+  },
+  "payload": Object {
+    "email": false,
+  },
+  "type": "UPDATE_SETTINGS",
+}
+`;
+
+exports[`Redux Schemad 4 Reducer 1 Field 2 update a field 2`] = `
+Object {
+  "loggedInUserId": null,
+  "settings": Object {
+    "email": false,
+  },
+  "users": Object {},
+}
+`;
+
+exports[`Redux Schemad 4 Reducer 1 Field 3 reset a field 1`] = `
+Object {
+  "meta": Object {
+    "name": "loggedInUserId",
+    "quantity": undefined,
+    "verb": "RESET",
+  },
+  "payload": undefined,
+  "type": "RESET_LOGGED_IN_USER_ID",
+}
+`;
+
+exports[`Redux Schemad 4 Reducer 1 Field 3 reset a field 2`] = `
+Object {
+  "loggedInUserId": null,
+  "settings": Object {},
+  "users": Object {},
+}
+`;
+
+exports[`Redux Schemad 4 Reducer 2 Collection 1 add a child 1`] = `
+Object {
+  "meta": Object {
+    "name": "users",
+    "quantity": "ONE",
+    "verb": "ADD",
+  },
+  "payload": Object {
+    "id": "abcd1234",
+  },
+  "type": "ADD_USER",
+}
+`;
+
+exports[`Redux Schemad 4 Reducer 2 Collection 1 add a child 2`] = `
+Object {
+  "loggedInUserId": null,
+  "settings": Object {},
+  "users": Object {
+    "abcd1234": Object {
+      "id": "abcd1234",
+    },
+  },
+}
+`;
+
+exports[`Redux Schemad 4 Reducer 2 Collection 2 add many children 1`] = `
+Object {
+  "meta": Object {
+    "name": "users",
+    "quantity": "MANY",
+    "verb": "ADD",
+  },
+  "payload": Array [
+    Object {
+      "id": "abcd1234",
+    },
+    Object {
+      "id": "wxyz0987",
+    },
+  ],
+  "type": "ADD_USERS",
+}
+`;
+
+exports[`Redux Schemad 4 Reducer 2 Collection 2 add many children 2`] = `
+Object {
+  "loggedInUserId": null,
+  "settings": Object {},
+  "users": Object {
+    "abcd1234": Object {
+      "id": "abcd1234",
+    },
+    "wxyz0987": Object {
+      "id": "wxyz0987",
+    },
+  },
+}
+`;
+
+exports[`Redux Schemad 4 Reducer 2 Collection 3 update a child 1`] = `
+Object {
+  "meta": Object {
+    "name": "users",
+    "quantity": "ONE",
+    "verb": "UPDATE",
+  },
+  "payload": Object {
+    "id": "abcd1234",
+    "name": "foobar",
+  },
+  "type": "UPDATE_USER",
+}
+`;
+
+exports[`Redux Schemad 4 Reducer 2 Collection 3 update a child 2`] = `
+Object {
+  "loggedInUserId": null,
+  "settings": Object {},
+  "users": Object {
+    "abcd1234": Object {
+      "id": "abcd1234",
+      "name": "foobar",
+    },
+  },
+}
+`;
+
+exports[`Redux Schemad 4 Reducer 2 Collection 4 update many children 1`] = `
+Object {
+  "meta": Object {
+    "name": "users",
+    "quantity": "MANY",
+    "verb": "UPDATE",
+  },
+  "payload": Array [
+    Object {
+      "id": "abcd1234",
+      "name": "foobar",
+    },
+    Object {
+      "id": "wxyz0987",
+    },
+  ],
+  "type": "UPDATE_USERS",
+}
+`;
+
+exports[`Redux Schemad 4 Reducer 2 Collection 4 update many children 2`] = `
+Object {
+  "loggedInUserId": null,
+  "settings": Object {},
+  "users": Object {
+    "abcd1234": Object {
+      "id": "abcd1234",
+      "name": "foobar",
+    },
+    "wxyz0987": Object {
+      "id": "wxyz0987",
+    },
+  },
+}
+`;
+
+exports[`Redux Schemad 4 Reducer 2 Collection 5 remove a child 1`] = `
+Object {
+  "meta": Object {
+    "name": "users",
+    "quantity": "ONE",
+    "verb": "REMOVE",
+  },
+  "payload": Object {
+    "id": "abcd1234",
+  },
+  "type": "REMOVE_USER",
+}
+`;
+
+exports[`Redux Schemad 4 Reducer 2 Collection 5 remove a child 2`] = `
+Object {
+  "loggedInUserId": null,
+  "settings": Object {},
+  "users": Object {
+    "wxyz0987": Object {
+      "id": "wxyz0987",
+    },
+  },
+}
+`;
+
+exports[`Redux Schemad 4 Reducer 2 Collection 6 remove many children 1`] = `
+Object {
+  "meta": Object {
+    "name": "users",
+    "quantity": "MANY",
+    "verb": "REMOVE",
+  },
+  "payload": Array [
+    Object {
+      "id": "abcd1234",
+    },
+  ],
+  "type": "REMOVE_USERS",
+}
+`;
+
+exports[`Redux Schemad 4 Reducer 2 Collection 6 remove many children 2`] = `
+Object {
+  "loggedInUserId": null,
+  "settings": Object {},
+  "users": Object {
+    "wxyz0987": Object {
+      "id": "wxyz0987",
+    },
+  },
+}
+`;
+
+exports[`Redux Schemad 4 Reducer 2 Collection 7 reset the collection 1`] = `
+Object {
+  "meta": Object {
+    "name": "users",
+    "quantity": "MANY",
+    "verb": "RESET",
+  },
+  "payload": undefined,
+  "type": "RESET_USERS",
+}
+`;
+
+exports[`Redux Schemad 4 Reducer 2 Collection 7 reset the collection 2`] = `
+Object {
+  "loggedInUserId": null,
+  "settings": Object {},
+  "users": Object {},
+}
+`;

@@ -1,16 +1,48 @@
 {
   "name": "redux-schemad",
   "version": "0.0.1",
-  "description": "Create automatic reducers, actions, and default state from a state schema.",
-  "main": "index.js",
-  "scripts": {
-    "test": "mocha test.js"
+  "description":
+    "Create automatic reducers, actions, and default state from a state schema.",
+  "keywords": [],
+  "homepage": "https://github.com/heiskr/redux-schemad",
+  "bugs": {
+    "url": "https://github.com/heiskr/redux-schemad/issues"
   },
-  "author": "",
   "license": "Apache-2.0",
+  "author": "Kevin Heis",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/heiskr/redux-listen.git"
+  },
+  "scripts": {
+    "covreport": "open coverage/lcov-report/index.html",
+    "precommit": "pretty-quick --staged",
+    "lint": "eslint index.js test.js",
+    "test": "concurrently 'jest test.js' 'npm run lint'"
+  },
+  "jest": {
+    "collectCoverage": true,
+    "coverageThreshold": {
+      "global": {
+        "branches": 65,
+        "functions": 95,
+        "lines": 87,
+        "statements": 87
+      }
+    }
+  },
   "devDependencies": {
-    "chai": "4.1.2",
-    "mocha": "4.0.1",
-    "sinon": "4.1.3"
+    "concurrently": "3.5.1",
+    "eslint": "4.18.2",
+    "eslint-config-airbnb-base": "12.1.0",
+    "eslint-config-prettier": "2.9.0",
+    "eslint-plugin-import": "2.9.0",
+    "jest": "22.4.2",
+    "prettier": "1.11.1",
+    "pretty-quick": "1.4.1"
+  },
+  "engines": {
+    "node": ">=8.9.4"
   }
 }
