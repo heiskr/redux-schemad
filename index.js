@@ -140,16 +140,15 @@ function findErrors(schema, state) {
       if (xfield.__field) {
         const errorRule = xfield.rules.find(rule => rule(subState[name], state))
         if (errorRule) {
-          errors.push([
-            errorRule(subState[name], state),
-            name,
-            subState[name]
-          ].join(' '))
+          errors.push(
+            [errorRule(subState[name], state), name, subState[name]].join(' ')
+          )
         }
       } else if (xfield.__collection) {
-        errors = Object.keys(subState[name] || {}).reduce((prev, id) =>
-          prev.concat(_(xfield.fields, subState[name][id]))
-        , errors)
+        errors = Object.keys(subState[name] || {}).reduce(
+          (prev, id) => prev.concat(_(xfield.fields, subState[name][id])),
+          errors
+        )
       }
     })
     return errors

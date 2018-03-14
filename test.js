@@ -86,7 +86,7 @@ describe('Redux Schemad', () => {
       })
 
       test('4 update an object field not before though', () => {
-        const state = {...defaultState, settings: null}
+        const state = { ...defaultState, settings: null }
         const action = actions.updateSettings({ email: false })
         expect(action).toMatchSnapshot()
         expect(reducer(state, action)).toMatchSnapshot()
@@ -195,14 +195,23 @@ describe('Redux Schemad', () => {
     test('1 an action missing data', () => {
       expect(reducer()).toBe(defaultState)
       expect(reducer(defaultState, {})).toBe(defaultState)
-      expect(reducer(defaultState, {type: 'FOO', meta: { name: 'FOO '}})).toBe(defaultState)
-      expect(reducer(defaultState, {type: 'FOO', meta: { verb: 'FOO '}})).toBe(defaultState)
+      expect(
+        reducer(defaultState, { type: 'FOO', meta: { name: 'FOO' } })
+      ).toBe(defaultState)
+      expect(
+        reducer(defaultState, { type: 'FOO', meta: { verb: 'FOO' } })
+      ).toBe(defaultState)
     })
 
     test('2 field not in schema', () => {
       const prevWarn = global.console.warn
       global.console.warn = jest.fn()
-      expect(reducer(defaultState, {type: 'FOO', meta: { name: 'FOO', verb: 'FOO '}})).toBe(defaultState)
+      expect(
+        reducer(defaultState, {
+          type: 'FOO',
+          meta: { name: 'FOO', verb: 'FOO' },
+        })
+      ).toBe(defaultState)
       expect(global.console.warn).toBeCalled()
       global.console.warn = prevWarn
     })
@@ -233,7 +242,7 @@ describe('Redux Schemad', () => {
     test('6 call worthless back-ups', () => {
       expect(getNewReducerState({}, {}, { meta: {} })).toEqual({})
       expect(findErrors({ a: {} }, {})).toEqual([])
-      expect(findErrors(schema, {...defaultState, users: null})).toEqual([])
+      expect(findErrors(schema, { ...defaultState, users: null })).toEqual([])
       expect(createActions({ a: {} }, () => {})).toEqual([{}, {}])
       expect(getFieldDefault({})).toBe(null)
       expect(getFieldDefault({ __field: true })).toBe(null)
