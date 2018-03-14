@@ -1,8 +1,7 @@
 {
   "name": "redux-schemad",
-  "version": "0.0.1",
-  "description":
-    "Create automatic reducers, actions, and default state from a state schema.",
+  "version": "0.0.2",
+  "description": "Create automatic reducers, actions, and default state from a state schema.",
   "keywords": [],
   "homepage": "https://github.com/heiskr/redux-schemad",
   "bugs": {
