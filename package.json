@@ -18,7 +18,7 @@
   "main": "index.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/heiskr/redux-listen.git"
+    "url": "https://github.com/heiskr/redux-schemad.git"
   },
   "scripts": {
     "covreport": "open coverage/lcov-report/index.html",
