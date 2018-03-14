@@ -6,7 +6,7 @@ const {
   // exists,
   // omit,
   getFieldDefault,
-  // createDefaultState,
+  createDefaultState,
   // createAction,
   // createFieldActions,
   // createCollectionActions,
@@ -25,15 +25,13 @@ const {
   // getNewFieldState,
   // getNewCollectionState,
   getNewReducerState,
-  // createReducer,
-  createFromSchema,
+  createReducer,
   // ---
   isRequired,
   // isReferencing,
 } = require('./index')
 
 describe('Redux Schemad', () => {
-  const dispatch = a => a
   const schema = {
     loggedInUserId: field([isRequired], 'erty1234'),
     settings: field([], {}),
@@ -42,10 +40,10 @@ describe('Redux Schemad', () => {
       name: field([], 'tester'),
     }),
   }
-  const { actions, actionTypes, defaultState, reducer } = createFromSchema({
-    dispatch,
-    schema,
-  })
+  const defaultState = createDefaultState(schema)
+  const reducer = createReducer(schema)
+  const dispatch = a => a
+  const [actions, actionTypes] = createActions(schema, dispatch)
 
   describe('1 Actions', () => {
     test('match snapshot', () => {
@@ -193,14 +191,14 @@ describe('Redux Schemad', () => {
 
   describe('5 Edges', () => {
     test('1 an action missing data', () => {
-      expect(reducer()).toBe(defaultState)
-      expect(reducer(defaultState, {})).toBe(defaultState)
+      expect(reducer()).toEqual(defaultState)
+      expect(reducer(defaultState, {})).toEqual(defaultState)
       expect(
         reducer(defaultState, { type: 'FOO', meta: { name: 'FOO' } })
-      ).toBe(defaultState)
+      ).toEqual(defaultState)
       expect(
         reducer(defaultState, { type: 'FOO', meta: { verb: 'FOO' } })
-      ).toBe(defaultState)
+      ).toEqual(defaultState)
     })
 
     test('2 field not in schema', () => {
@@ -211,7 +209,7 @@ describe('Redux Schemad', () => {
           type: 'FOO',
           meta: { name: 'FOO', verb: 'FOO' },
         })
-      ).toBe(defaultState)
+      ).toEqual(defaultState)
       expect(global.console.warn).toBeCalled()
       global.console.warn = prevWarn
     })

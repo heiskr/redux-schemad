@@ -276,7 +276,8 @@ function getNewReducerState(
   return state
 }
 
-function createReducer(defaultState, schema) {
+function createReducer(schema) {
+  const defaultState = createDefaultState(schema)
   return (state = defaultState, action = {}) => {
     const { type, meta: { name, verb } = {} } = action
     if (!type || !name || !verb) {
@@ -294,17 +295,6 @@ function createReducer(defaultState, schema) {
       return state
     }
     return newState
-  }
-}
-
-function createFromSchema({ schema, dispatch }) {
-  const [actions, actionTypes] = createActions(schema, dispatch)
-  const defaultState = createDefaultState(schema)
-  return {
-    actions,
-    actionTypes,
-    defaultState,
-    reducer: createReducer(defaultState, schema),
   }
 }
 
@@ -363,7 +353,6 @@ module.exports = {
   getNewCollectionState,
   getNewReducerState,
   createReducer,
-  createFromSchema,
   // ---
   isRequired,
   // isString,
