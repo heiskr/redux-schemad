@@ -70,66 +70,76 @@ function createDefaultState(schema) {
   }, {})
 }
 
-function createAction({ type, verb, name, quantity, dispatch }) {
-  return (payload, meta = {}) =>
-    dispatch({
-      type,
-      payload,
-      meta: Object.assign({ verb, name, quantity }, meta),
-    })
-}
-
-function createFieldActions(name, dispatch) {
-  const actions = {}
-  const actionTypes = {}
-  FIELD_VERBS.forEach(verb => {
-    const type = `${verb.toUpperCase()}_${titleize(name)}`
-    actions[verb.toLowerCase() + ucfirst(name)] = createAction({
-      type,
-      verb,
-      name,
-      dispatch,
-    })
-    actionTypes[type] = type
+function createAction(type, verb, name, quantity) {
+  return (payload, meta = {}) => ({
+    type,
+    payload,
+    meta: Object.assign({ verb, name, quantity }, meta),
   })
-  return [actions, actionTypes]
 }
 
-function createCollectionActions(collectionName, dispatch) {
-  const actions = {}
-  const actionTypes = {}
+function createFieldActions(name) {
+  return FIELD_VERBS.reduce((sum, verb) => {
+    const type = `${verb.toUpperCase()}_${titleize(name)}`
+    const fnName = verb.toLowerCase() + ucfirst(name)
+    return Object.assign(sum, {
+      [fnName]: createAction(type, verb, name),
+    })
+  }, {})
+}
+
+function createFieldActionTypes(name) {
+  return FIELD_VERBS.map(
+    verb => `${verb.toUpperCase()}_${titleize(name)}`
+  ).reduce((sum, type) => Object.assign(sum, { [type]: type }), {})
+}
+
+function createCollectionActions(collectionName) {
   const singularName = collectionName.replace(/s$/, '')
-  COLLECTION_VERBS.forEach(([verb, quantity]) => {
+  return COLLECTION_VERBS.reduce((sum, [verb, quantity]) => {
     const name = quantity === MANY ? collectionName : singularName
     const type = `${verb.toUpperCase()}_${titleize(name)}`
-    actions[verb.toLowerCase() + ucfirst(name)] = createAction({
-      type,
-      verb,
-      name: collectionName,
-      quantity,
-      dispatch,
+    const fnName = verb.toLowerCase() + ucfirst(name)
+    return Object.assign(sum, {
+      [fnName]: createAction(type, verb, collectionName, quantity),
     })
-    actionTypes[type] = type
-  })
-  return [actions, actionTypes]
+  }, {})
 }
 
-function createActions(schema, dispatch) {
-  const actions = {}
-  const actionTypes = {}
-  Object.keys(schema).forEach(name => {
+function createCollectionActionTypes(name) {
+  const singularName = name.replace(/s$/, '')
+  return COLLECTION_VERBS.map(
+    ([verb, quantity]) =>
+      `${verb.toUpperCase()}_${titleize(
+        quantity === MANY ? name : singularName
+      )}`
+  ).reduce((sum, type) => Object.assign(sum, { [type]: type }), {})
+}
+
+function createActionTypes(schema) {
+  return Object.keys(schema).reduce((result, name) => {
     const xfield = schema[name]
-    let _actions = {}
-    let _actionTypes = {}
     if (xfield.__field) {
-      ;[_actions, _actionTypes] = createFieldActions(name, dispatch)
-    } else if (xfield.__collection) {
-      ;[_actions, _actionTypes] = createCollectionActions(name, dispatch)
+      return Object.assign(result, createFieldActionTypes(name))
     }
-    Object.assign(actions, _actions)
-    Object.assign(actionTypes, _actionTypes)
-  })
-  return [actions, actionTypes]
+    if (xfield.__collection) {
+      return Object.assign(result, createCollectionActionTypes(name))
+    }
+    return result
+  }, {})
+}
+
+function createActions(schema) {
+  return Object.keys(schema).reduce((sum, name) => {
+    const xfield = schema[name]
+    if (xfield.__field) {
+      return Object.assign(sum, createFieldActions(name))
+    }
+    if (xfield.__collection) {
+      return Object.assign(sum, createCollectionActions(name))
+    }
+    return sum
+  }, {})
 }
 
 function findErrors(schema, state) {
@@ -337,6 +347,7 @@ module.exports = {
   createAction,
   createFieldActions,
   createCollectionActions,
+  createActionTypes,
   createActions,
   findErrors,
   setField,

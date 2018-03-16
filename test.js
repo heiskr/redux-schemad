@@ -10,6 +10,7 @@ const {
   // createAction,
   // createFieldActions,
   // createCollectionActions,
+  createActionTypes,
   createActions,
   findErrors,
   // setField,
@@ -42,8 +43,8 @@ describe('Redux Schemad', () => {
   }
   const defaultState = createDefaultState(schema)
   const reducer = createReducer(schema)
-  const dispatch = a => a
-  const [actions, actionTypes] = createActions(schema, dispatch)
+  const actions = createActions(schema)
+  const actionTypes = createActionTypes(schema)
 
   describe('1 Actions', () => {
     test('match snapshot', () => {
@@ -241,7 +242,8 @@ describe('Redux Schemad', () => {
       expect(getNewReducerState({}, {}, { meta: {} })).toEqual({})
       expect(findErrors({ a: {} }, {})).toEqual([])
       expect(findErrors(schema, { ...defaultState, users: null })).toEqual([])
-      expect(createActions({ a: {} }, () => {})).toEqual([{}, {}])
+      expect(createActions({ a: {} })).toEqual({})
+      expect(createActionTypes({ a: {} })).toEqual({})
       expect(getFieldDefault({})).toBe(null)
       expect(getFieldDefault({ __field: true })).toBe(null)
     })

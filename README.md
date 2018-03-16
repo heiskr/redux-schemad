@@ -11,9 +11,13 @@ This module intentionally only supports what's necessary to follow the spirit of
 ## Example
 
 ```javascript
-import { createStore } from 'redux'
+import {
+  createStore,
+  bindActionCreators,
+} from 'redux'
 import {
   createReducer,
+  createActionTypes,
   createActions,
   field,
   collection,
@@ -29,7 +33,8 @@ const schema = {
 }
 const reducer = createReducer(schema)
 const store = createStore(reducer)
-const [actions, actionTypes] = createActions(schema, store.dispatch)
+const actions = bindActionCreators(createActions(schema), store.dispatch)
+const actionTypes = createActionTypes(schema)
 ```
 
 In our basic example, we...
@@ -37,7 +42,8 @@ In our basic example, we...
 1. Create a schema, using `field` and `collection`
 2. Create our reducer function using the schema. Remember, a reducer is just a function with the signature `(prevState, action) -> newState`.
 3. Create your Redux store as normal using the reducer.
-4. Create actions and a map of action types. Actions are bound to `store.dispatch`.
+4. Create actions. You'll need to bind them later with either `bindActionCreators(actions, dispatch)` (Redux only) or `mapDispatchToProps` (react-redux).
+5. Create a map of action types.
 
 ## Create a Schema: field, collection, validation rules
 
@@ -70,9 +76,11 @@ Generally speaking, if you want a field to be optional, then your validation fun
 
 ## Action Types, Action Creators, and Default State
 
-For _top level_ items in the schema, we will create the following actions and action types automatically. `createActions(schema, dispatch)` actions are bound to `store.dispatch` for your convenience.
+For _top level_ items in the schema, we will create the following actions and action types with `createActions(schema)` and `createActionTypes(schema)`.
 
 ### Action Types and Action Creators for Field
+
+The action type is on the left, the actionCreator signature on the right.
 
 Where `field` below is replaced with the name:
 
@@ -81,6 +89,8 @@ Where `field` below is replaced with the name:
 * `RESET_FIELD`: `resetField()` -- Returns back to default value.
 
 ### Action Types and Action Creators for Collection
+
+The action type is on the left, the actionCreator signature on the right.
 
 Where `items` below is replace with the name:
 
