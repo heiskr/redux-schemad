@@ -78,55 +78,66 @@ function createAction(type, verb, name, quantity) {
   })
 }
 
-function createFieldActions(name) {
-  return FIELD_VERBS.reduce((sum, verb) => {
-    const type = `${verb.toUpperCase()}_${titleize(name)}`
-    const fnName = verb.toLowerCase() + ucfirst(name)
-    return Object.assign(sum, {
-      [fnName]: createAction(type, verb, name),
-    })
-  }, {})
-}
-
 function createFieldActionTypes(name) {
-  return FIELD_VERBS.map(
-    verb => `${verb.toUpperCase()}_${titleize(name)}`
-  ).reduce((sum, type) => Object.assign(sum, { [type]: type }), {})
+  return FIELD_VERBS.map(verb => `${verb.toUpperCase()}_${titleize(name)}`)
 }
 
-function createCollectionActions(collectionName) {
-  const singularName = collectionName.replace(/s$/, '')
-  return COLLECTION_VERBS.reduce((sum, [verb, quantity]) => {
-    const name = quantity === MANY ? collectionName : singularName
-    const type = `${verb.toUpperCase()}_${titleize(name)}`
-    const fnName = verb.toLowerCase() + ucfirst(name)
-    return Object.assign(sum, {
-      [fnName]: createAction(type, verb, collectionName, quantity),
-    })
-  }, {})
+function createFieldActions(name) {
+  const types = createFieldActionTypes(name)
+  return FIELD_VERBS.reduce(
+    (sum, verb, i) =>
+      Object.assign(sum, {
+        [verb.toLowerCase() + ucfirst(name)]: createAction(
+          types[i],
+          verb,
+          name
+        ),
+      }),
+    {}
+  )
+}
+
+function getPluralizedName(name, quantity) {
+  return quantity === MANY ? name : name.replace(/s$/, '')
 }
 
 function createCollectionActionTypes(name) {
-  const singularName = name.replace(/s$/, '')
   return COLLECTION_VERBS.map(
     ([verb, quantity]) =>
-      `${verb.toUpperCase()}_${titleize(
-        quantity === MANY ? name : singularName
-      )}`
-  ).reduce((sum, type) => Object.assign(sum, { [type]: type }), {})
+      `${verb.toUpperCase()}_${titleize(getPluralizedName(name, quantity))}`
+  )
+}
+
+function createCollectionActions(name) {
+  const types = createCollectionActionTypes(name)
+  return COLLECTION_VERBS.reduce(
+    (sum, [verb, quantity], i) =>
+      Object.assign(sum, {
+        [verb.toLowerCase() +
+        ucfirst(getPluralizedName(name, quantity))]: createAction(
+          types[i],
+          verb,
+          name,
+          quantity
+        ),
+      }),
+    {}
+  )
 }
 
 function createActionTypes(schema) {
-  return Object.keys(schema).reduce((result, name) => {
-    const xfield = schema[name]
-    if (xfield.__field) {
-      return Object.assign(result, createFieldActionTypes(name))
-    }
-    if (xfield.__collection) {
-      return Object.assign(result, createCollectionActionTypes(name))
-    }
-    return result
-  }, {})
+  return Object.keys(schema)
+    .reduce((prev, name) => {
+      const xfield = schema[name]
+      if (xfield.__field) {
+        return prev.concat(createFieldActionTypes(name))
+      }
+      if (xfield.__collection) {
+        return prev.concat(createCollectionActionTypes(name))
+      }
+      return prev
+    }, [])
+    .reduce((sum, type) => Object.assign(sum, { [type]: type }), {})
 }
 
 function createActions(schema) {
@@ -338,34 +349,12 @@ function isReferencing(collectionName) {
 module.exports = {
   field,
   collection,
-  ucfirst,
-  titleize,
-  exists,
-  omit,
   getFieldDefault,
   createDefaultState,
-  createAction,
-  createFieldActions,
-  createCollectionActions,
   createActionTypes,
   createActions,
   findErrors,
-  setField,
-  updateField,
-  resetField,
-  addChild,
-  addChildren,
-  updateChild,
-  updateChildren,
-  removeChild,
-  removeChildren,
-  resetChildren,
-  getNewFieldState,
-  getNewCollectionState,
   getNewReducerState,
   createReducer,
-  // ---
   isRequired,
-  // isString,
-  // isReferencing,
 }
