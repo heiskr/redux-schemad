@@ -16,11 +16,12 @@ import {
   bindActionCreators,
 } from 'redux'
 import {
-  createReducer,
-  createActionTypes,
-  createActions,
   field,
   collection,
+  isRequired,
+  createReducer,
+  createActions,
+  createActionTypes,
 } from 'redux-schemad'
 
 const schema = {
@@ -51,6 +52,7 @@ In our basic example, we...
 import {
   field,
   collection,
+  isRequired,
 } from 'redux-schemad'
 
 const schema = {
