@@ -59,9 +59,11 @@ function getFieldDefault(xfield) {
 }
 
 function createDefaultState(schema) {
-  return Object.keys(schema).reduce((sum, name) =>
-    Object.assign(sum, { [name]: getFieldDefault(schema[name]) })
-  , {})
+  return Object.keys(schema).reduce(
+    (sum, name) =>
+      Object.assign(sum, { [name]: getFieldDefault(schema[name]) }),
+    {}
+  )
 }
 
 function createAction(type, verb, name, quantity) {
