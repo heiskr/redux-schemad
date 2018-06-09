@@ -1,7 +1,3 @@
-// TODO create actions for nested fields/collections (?)
-// TODO handle actions for nested fields and collections (?)
-// TODO reference nested collection (?)
-
 const SET = 'SET'
 const ADD = 'ADD'
 const UPDATE = 'UPDATE'
@@ -63,11 +59,9 @@ function getFieldDefault(xfield) {
 }
 
 function createDefaultState(schema) {
-  return Object.keys(schema).reduce((sum, name) => {
-    const xfield = schema[name]
-    sum[name] = getFieldDefault(xfield)
-    return sum
-  }, {})
+  return Object.keys(schema).reduce((sum, name) =>
+    Object.assign(sum, { [name]: getFieldDefault(schema[name]) })
+  , {})
 }
 
 function createAction(type, verb, name, quantity) {
@@ -319,32 +313,12 @@ function createReducer(schema) {
   }
 }
 
-/* ----------------------------------------------------------- */
-
 function isRequired(value) {
   if (!exists(value) || (typeof value === 'string' && !value)) {
     return 'isRequired'
   }
   return null
 }
-
-/*
-function isString(value) {
-  if (exists(value) && typeof value !== 'string') {
-    return 'isString'
-  }
-  return null
-}
-
-function isReferencing(collectionName) {
-  return (value, state) => {
-    if (exists(value) && !state[collectionName][value]) {
-      return 'isReferencing'
-    }
-    return null
-  }
-}
-*/
 
 module.exports = {
   field,
