@@ -1,336 +1,326 @@
-const SET = 'SET'
-const ADD = 'ADD'
-const UPDATE = 'UPDATE'
-const REMOVE = 'REMOVE'
-const RESET = 'RESET'
-const ONE = 'ONE'
-const MANY = 'MANY'
-const FIELD_VERBS = [SET, UPDATE, RESET]
-const COLLECTION_VERBS = [
-  [ADD, ONE],
-  [ADD, MANY],
-  [UPDATE, ONE],
-  [UPDATE, MANY],
-  [REMOVE, ONE],
-  [REMOVE, MANY],
-  [RESET, MANY],
-]
 const OBJ_CONST = {}.constructor
-
-function field(rules, defaultValue) {
-  return { __field: true, rules, defaultValue }
-}
-
-function collection(onField, fields) {
-  return { __collection: true, onField, fields }
-}
-
-function ucfirst(s) {
-  return s.charAt(0).toUpperCase() + s.slice(1)
-}
-
-function titleize(cameled) {
-  return cameled
-    .replace(/\.?([A-Z]+)/g, (_, s) => `_${s.toLowerCase()}`)
-    .replace(/^_/, '')
-    .toUpperCase()
-}
+const GLOBAL_KEY = 'global'
 
 function exists(value) {
   return typeof value !== 'undefined' && value != null
 }
 
-function omit(obj, omitKey) {
-  return Object.keys(obj).reduce((result, key) => {
-    if (key !== omitKey) {
-      result[key] = obj[key]
-    }
-    return result
-  }, {})
+function isPlainObject(value) {
+  return value.constructor === OBJ_CONST
 }
 
-function getFieldDefault(xfield) {
-  if (xfield.__field) {
-    return (exists(xfield.defaultValue) && xfield.defaultValue) || null
-  } else if (xfield.__collection) {
-    return {}
-  }
-  return null
+function omitOne(obj, key) {
+  const next = Object.assign({}, obj)
+  delete next[key]
+  return next
 }
 
-function createDefaultState(schema) {
-  return Object.keys(schema).reduce(
-    (sum, name) =>
-      Object.assign(sum, { [name]: getFieldDefault(schema[name]) }),
-    {}
-  )
-}
-
-function createAction(type, verb, name, quantity) {
-  return (payload, meta = {}) => ({
-    type,
-    payload,
-    meta: Object.assign({ verb, name, quantity }, meta),
-  })
-}
-
-function createFieldActionTypes(name) {
-  return FIELD_VERBS.map(verb => `${verb.toUpperCase()}_${titleize(name)}`)
-}
-
-function createFieldActions(name) {
-  const types = createFieldActionTypes(name)
-  return FIELD_VERBS.reduce(
-    (sum, verb, i) =>
-      Object.assign(sum, {
-        [verb.toLowerCase() + ucfirst(name)]: createAction(
-          types[i],
-          verb,
-          name
-        ),
-      }),
-    {}
-  )
-}
-
-function getPluralizedName(name, quantity) {
-  return quantity === MANY ? name : name.replace(/s$/, '')
-}
-
-function createCollectionActionTypes(name) {
-  return COLLECTION_VERBS.map(
-    ([verb, quantity]) =>
-      `${verb.toUpperCase()}_${titleize(getPluralizedName(name, quantity))}`
-  )
-}
-
-function createCollectionActions(name) {
-  const types = createCollectionActionTypes(name)
-  return COLLECTION_VERBS.reduce(
-    (sum, [verb, quantity], i) =>
-      Object.assign(sum, {
-        [verb.toLowerCase() +
-        ucfirst(getPluralizedName(name, quantity))]: createAction(
-          types[i],
-          verb,
-          name,
-          quantity
-        ),
-      }),
-    {}
-  )
-}
-
-function createActionTypes(schema) {
-  return Object.keys(schema)
-    .reduce((prev, name) => {
-      const xfield = schema[name]
-      if (xfield.__field) {
-        return prev.concat(createFieldActionTypes(name))
-      }
-      if (xfield.__collection) {
-        return prev.concat(createCollectionActionTypes(name))
-      }
-      return prev
-    }, [])
-    .reduce((sum, type) => Object.assign(sum, { [type]: type }), {})
-}
-
-function createActions(schema) {
-  return Object.keys(schema).reduce((sum, name) => {
-    const xfield = schema[name]
-    if (xfield.__field) {
-      return Object.assign(sum, createFieldActions(name))
-    }
-    if (xfield.__collection) {
-      return Object.assign(sum, createCollectionActions(name))
-    }
+function fromEntries(arr) {
+  return arr.reduce((sum, [key, value]) => {
+    sum[key] = value
     return sum
   }, {})
 }
 
-function findErrors(schema, state) {
-  function _(subSchema, subState) {
-    let errors = []
-    Object.keys(subSchema).forEach(name => {
-      const xfield = subSchema[name]
-      if (xfield.__field) {
-        const errorRule = xfield.rules.find(rule => rule(subState[name], state))
-        if (errorRule) {
-          errors.push(
-            [errorRule(subState[name], state), name, subState[name]].join(' ')
-          )
-        }
-      } else if (xfield.__collection) {
-        errors = Object.keys(subState[name] || {}).reduce(
-          (prev, id) => prev.concat(_(xfield.fields, subState[name][id])),
-          errors
-        )
-      }
-    })
-    return errors
-  }
-  const errors = _(schema, state)
-  if (errors.length) {
-    /* eslint-disable no-console */
-    console.warn(`Reducer Did Not Update: \n${errors.join('\n')}`)
-    /* eslint-enable */
-  }
-  return errors
+function identity(a) {
+  return a
 }
 
-function setField(state, name, xfield, payload) {
-  return Object.assign({}, state, { [name]: payload })
-}
-
-function updateField(state, name, xfield, payload) {
-  if (exists(state[name]) && state[name].constructor === OBJ_CONST) {
-    return Object.assign({}, state, {
-      [name]: Object.assign({}, state[name], payload),
-    })
-  }
-  return setField(state, name, xfield, payload)
-}
-
-function resetField(state, name, xfield) {
-  return Object.assign({}, state, { [name]: getFieldDefault(xfield) })
-}
-
-function addChild(state, xfield, payload) {
-  const id = payload[xfield.onField]
-  return Object.assign({}, state, { [id]: payload })
-}
-
-function addChildren(state, xfield, payload) {
-  return payload.reduce((prev, child) => addChild(prev, xfield, child), state)
-}
-
-function updateChild(state, xfield, payload) {
-  const id = payload[xfield.onField]
-  return Object.assign({}, state, {
-    [id]: Object.assign({}, state[id], payload),
-  })
-}
-
-function updateChildren(state, xfield, payload) {
-  return payload.reduce(
-    (prev, child) => updateChild(prev, xfield, child),
-    state
+function mapObj(obj, applyKey = identity, applyValue = identity) {
+  return fromEntries(
+    Object.keys(obj).map(key => [
+      applyKey(key, obj[key]),
+      applyValue(key, obj[key]),
+    ])
   )
 }
 
-function removeChild(state, xfield, payload) {
-  const id = payload[xfield.onField]
-  return omit(state, id)
+function camelToSnake(s) {
+  return s
+    .replace(/\.?([A-Z]+)/g, (x, y) => `_${y.toLowerCase()}`)
+    .replace(/^_/, '')
+    .toUpperCase()
 }
 
-function removeChildren(state, xfield, payload) {
-  return payload.reduce(
-    (prev, child) => removeChild(prev, xfield, child),
-    state
-  )
+function snakeToCamel(s) {
+  return s.toLowerCase().replace(/_+(\w){1}/g, (x, y) => y.toUpperCase())
 }
 
-function resetChildren() {
-  return {}
+function diffKeys(a, b) {
+  const bKeys = Object.keys(b)
+  return Object.keys(a).filter(i => bKeys.indexOf(i) < 0)
+}
+
+function getSchemaCollectionIdName(schema, key) {
+  return Object.keys(schema[key])[0].replace(/^\[(.*)\]$/, '$1')
+}
+
+function getSchemaCollectionFields(schema, key) {
+  const idName = getSchemaCollectionIdName(schema, key)
+  const firstKey = Object.keys(schema[key])[0]
+  return omitOne(schema[key][firstKey], idName)
+}
+
+function getFieldActionType(name) {
+  const snake = camelToSnake(name)
+  return verb => verb + snake
+}
+
+function getCollectionActionType(
+  manyName,
+  oneName = manyName.replace(/s$/, '')
+) {
+  const snakeMany = camelToSnake(manyName)
+  const snakeOne = camelToSnake(oneName)
+  return verb => verb.replace('ITEMS', snakeMany).replace('ITEM', snakeOne)
+}
+
+// ////////////////////////////////////////////////
+
+function setField(name) {
+  return (state, action) => {
+    state[name] = action.payload
+  }
+}
+
+function updateField(name) {
+  return (state, action) => {
+    if (exists(state[name]) && isPlainObject(state[name])) {
+      state[name] = Object.assign({}, state[name], action.payload)
+    } else {
+      setField(name)(state, action)
+    }
+  }
+}
+
+function resetField(name, defaultValue = null) {
+  return state => {
+    state[name] = defaultValue
+  }
+}
+
+function addItem(idField = 'id') {
+  return (state, action) => {
+    const id = action.payload[idField]
+    state[id] = omitOne(action.payload, idField)
+    return state
+  }
+}
+
+function addItems(idField) {
+  const addItem$ = addItem(idField)
+  return (state, action) => {
+    action.payload.reduce((prev, payload) => addItem$(prev, { payload }), state)
+  }
+}
+
+function updateItem(idField = 'id') {
+  return (state, action) => {
+    const id = action.payload[idField]
+    if (exists(state[id]) && isPlainObject(state[id])) {
+      state[id] = Object.assign({}, state[id], omitOne(action.payload, idField))
+      return state
+    }
+    return addItem(idField)(state, action)
+  }
+}
+
+function updateItems(idField) {
+  const updateItem$ = updateItem(idField)
+  return (state, action) => {
+    action.payload.reduce(
+      (prev, payload) => updateItem$(prev, { payload }),
+      state
+    )
+  }
+}
+
+function removeItem(idField = 'id') {
+  return (state, action) => {
+    const id = action.payload[idField]
+    delete state[id]
+    return state
+  }
+}
+
+function removeItems(idField) {
+  const removeItem$ = removeItem(idField)
+  return (state, action) => {
+    action.payload.reduce(
+      (prev, payload) => removeItem$(prev, { payload }),
+      state
+    )
+  }
+}
+
+function resetItems() {
+  return () => ({})
+}
+
+function createAction(type) {
+  return (payload, meta) => ({ type, payload, meta })
 }
 
 const FIELD_MAP = {
-  [SET]: setField,
-  [UPDATE]: updateField,
-  [RESET]: resetField,
+  SET_: setField,
+  UPDATE_: updateField,
+  RESET_: resetField,
 }
 
-function getNewFieldState({ state, xfield, name, payload, verb }) {
-  const fn = FIELD_MAP[verb]
-  if (fn) {
-    return fn(state, name, xfield, payload)
-  }
-  return state
+function createFieldActionsMap(name, defaultValue) {
+  return mapObj(FIELD_MAP, getFieldActionType(name), (key, value) =>
+    value(name, defaultValue)
+  )
+}
+
+function createGlobalActionsMap(defaults) {
+  return Object.keys(defaults).reduce((sum, fieldName) => {
+    const actionsMap = createFieldActionsMap(fieldName, defaults[fieldName])
+    Object.assign(sum, actionsMap)
+    return sum
+  }, {})
 }
 
 const COLLECTION_MAP = {
-  [ONE]: {
-    [ADD]: addChild,
-    [UPDATE]: updateChild,
-    [REMOVE]: removeChild,
-  },
-  [MANY]: {
-    [ADD]: addChildren,
-    [UPDATE]: updateChildren,
-    [REMOVE]: removeChildren,
-    [RESET]: resetChildren,
-  },
+  ADD_ITEM: addItem,
+  ADD_ITEMS: addItems,
+  UPDATE_ITEM: updateItem,
+  UPDATE_ITEMS: updateItems,
+  REMOVE_ITEM: removeItem,
+  REMOVE_ITEMS: removeItems,
+  RESET_ITEMS: resetItems,
 }
 
-function getNewCollectionState({ state, xfield, payload, verb, quantity }) {
-  const fn = COLLECTION_MAP[quantity] && COLLECTION_MAP[quantity][verb]
-  if (fn) {
-    return fn(state, xfield, payload)
-  }
-  return state
+function createCollectionActionsMap(manyName, idField, oneName) {
+  return mapObj(
+    COLLECTION_MAP,
+    getCollectionActionType(manyName, oneName),
+    (key, value) => value(idField)
+  )
 }
 
-function getNewReducerState(
-  state,
-  xfield,
-  { payload, meta: { name, verb, quantity } }
-) {
-  if (xfield.__field) {
-    return getNewFieldState({ state, xfield, name, payload, verb })
-  }
-  if (xfield.__collection) {
-    return Object.assign({}, state, {
-      [name]: getNewCollectionState({
-        state: state[name],
-        quantity,
-        xfield,
-        verb,
-        payload,
-      }),
-    })
-  }
-  return state
+function createDefaultState(schema) {
+  return mapObj(
+    schema,
+    undefined,
+    (key, value) => (key === GLOBAL_KEY ? value : {})
+  )
 }
 
-function createReducer(schema) {
+function createSchemadReducer(schema, createReducer) {
   const defaultState = createDefaultState(schema)
-  return (state = defaultState, action = {}) => {
-    const { type, meta: { name, verb } = {} } = action
-    if (!type || !name || !verb) {
-      return state
-    }
-    const xfield = schema[name]
-    if (!xfield) {
-      /* eslint-disable no-console */
-      console.warn('No found schema field for', name)
-      /* eslint-enable */
-      return state
-    }
-    const newState = getNewReducerState(state, xfield, action)
-    if (findErrors(schema, newState).length) {
-      return state
-    }
-    return newState
-  }
+  return mapObj(schema, undefined, key =>
+    createReducer(
+      defaultState[key],
+      key === GLOBAL_KEY
+        ? createGlobalActionsMap(schema[key])
+        : createCollectionActionsMap(
+            key,
+            getSchemaCollectionIdName(schema, key)
+          )
+    )
+  )
 }
 
-function isRequired(value) {
-  if (!exists(value) || (typeof value === 'string' && !value)) {
-    return 'isRequired'
+function createActionTypes(schema) {
+  const fieldVerbs = Object.keys(FIELD_MAP)
+  const collectionVerbs = Object.keys(COLLECTION_MAP)
+  return fromEntries(
+    Object.keys(schema)
+      .reduce(
+        (prev, top) =>
+          prev.concat(
+            top === GLOBAL_KEY
+              ? Object.keys(schema[top]).reduce(
+                  (back, key) =>
+                    back.concat(fieldVerbs.map(getFieldActionType(key))),
+                  []
+                )
+              : collectionVerbs.map(getCollectionActionType(top))
+          ),
+        []
+      )
+      .map(type => [type, type])
+  )
+}
+
+function createActions(schema) {
+  return mapObj(
+    createActionTypes(schema),
+    type => snakeToCamel(type),
+    type => createAction(type)
+  )
+}
+
+function addErr(message, errKeys) {
+  if (errKeys && errKeys.length) {
+    return `${message}: ${errKeys.join(', ')}`
   }
   return null
 }
 
+function diffErr(prefix, xschema, xstate) {
+  return [
+    addErr(`${prefix} schema has extra keys`, diffKeys(xschema, xstate)),
+    addErr(`${prefix} state has extra keys`, diffKeys(xstate, xschema)),
+  ]
+}
+
+function verifyStateKeys(schema, state) {
+  return Object.keys(schema)
+    .reduce(
+      (topPrev, topKey) =>
+        topPrev.concat(
+          topKey === GLOBAL_KEY
+            ? diffErr('"global"', schema[topKey], state[topKey])
+            : Object.keys(state[topKey]).reduce(
+                (prev, id) =>
+                  prev.concat(
+                    diffErr(
+                      `"${topKey}.${id}"`,
+                      getSchemaCollectionFields(schema, topKey),
+                      state[topKey][id]
+                    )
+                  ),
+                []
+              )
+        ),
+      diffErr('Top', schema, state)
+    )
+    .filter(Boolean)
+}
+
+/* eslint-disable no-console */
+function verifyStateKeysMiddleware(schema) {
+  return store => next => action => {
+    const result = next(action)
+    const errors = verifyStateKeys(schema, store.getState())
+    if (errors.length) console.error(errors.join('\n'))
+    return result
+  }
+}
+/* eslint-enable */
+
 module.exports = {
-  field,
-  collection,
-  getFieldDefault,
+  mapObj,
+  setField,
+  updateField,
+  resetField,
+  addItem,
+  addItems,
+  updateItem,
+  updateItems,
+  removeItem,
+  removeItems,
+  resetItems,
+  createAction,
+  createFieldActionsMap,
+  createGlobalActionsMap,
+  createCollectionActionsMap,
   createDefaultState,
+  createSchemadReducer,
   createActionTypes,
   createActions,
-  findErrors,
-  getNewReducerState,
-  createReducer,
-  isRequired,
+  verifyStateKeys,
+  verifyStateKeysMiddleware,
 }

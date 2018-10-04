@@ -38,19 +38,17 @@ Object {
 
 exports[`Redux Schemad 3 Default State match snapshot 1`] = `
 Object {
-  "loggedInUserId": "erty1234",
-  "settings": Object {},
+  "global": Object {
+    "loggedInUserId": "erty1234",
+    "settings": Object {},
+  },
   "users": Object {},
 }
 `;
 
 exports[`Redux Schemad 4 Reducer 1 Field 1 set a field 1`] = `
 Object {
-  "meta": Object {
-    "name": "loggedInUserId",
-    "quantity": undefined,
-    "verb": "SET",
-  },
+  "meta": undefined,
   "payload": "abcd1234",
   "type": "SET_LOGGED_IN_USER_ID",
 }
@@ -58,19 +56,17 @@ Object {
 
 exports[`Redux Schemad 4 Reducer 1 Field 1 set a field 2`] = `
 Object {
-  "loggedInUserId": "abcd1234",
-  "settings": Object {},
+  "global": Object {
+    "loggedInUserId": "abcd1234",
+    "settings": Object {},
+  },
   "users": Object {},
 }
 `;
 
 exports[`Redux Schemad 4 Reducer 1 Field 2 update a flat field 1`] = `
 Object {
-  "meta": Object {
-    "name": "loggedInUserId",
-    "quantity": undefined,
-    "verb": "UPDATE",
-  },
+  "meta": undefined,
   "payload": "abcd1234",
   "type": "UPDATE_LOGGED_IN_USER_ID",
 }
@@ -78,19 +74,17 @@ Object {
 
 exports[`Redux Schemad 4 Reducer 1 Field 2 update a flat field 2`] = `
 Object {
-  "loggedInUserId": "abcd1234",
-  "settings": Object {},
+  "global": Object {
+    "loggedInUserId": "abcd1234",
+    "settings": Object {},
+  },
   "users": Object {},
 }
 `;
 
 exports[`Redux Schemad 4 Reducer 1 Field 3 update an object field 1`] = `
 Object {
-  "meta": Object {
-    "name": "settings",
-    "quantity": undefined,
-    "verb": "UPDATE",
-  },
+  "meta": undefined,
   "payload": Object {
     "email": false,
   },
@@ -100,9 +94,11 @@ Object {
 
 exports[`Redux Schemad 4 Reducer 1 Field 3 update an object field 2`] = `
 Object {
-  "loggedInUserId": "erty1234",
-  "settings": Object {
-    "email": false,
+  "global": Object {
+    "loggedInUserId": "erty1234",
+    "settings": Object {
+      "email": false,
+    },
   },
   "users": Object {},
 }
@@ -110,11 +106,7 @@ Object {
 
 exports[`Redux Schemad 4 Reducer 1 Field 4 update an object field not before though 1`] = `
 Object {
-  "meta": Object {
-    "name": "settings",
-    "quantity": undefined,
-    "verb": "UPDATE",
-  },
+  "meta": undefined,
   "payload": Object {
     "email": false,
   },
@@ -124,9 +116,11 @@ Object {
 
 exports[`Redux Schemad 4 Reducer 1 Field 4 update an object field not before though 2`] = `
 Object {
-  "loggedInUserId": "erty1234",
-  "settings": Object {
-    "email": false,
+  "global": Object {
+    "loggedInUserId": "erty1234",
+    "settings": Object {
+      "email": false,
+    },
   },
   "users": Object {},
 }
@@ -134,11 +128,7 @@ Object {
 
 exports[`Redux Schemad 4 Reducer 1 Field 5 reset a field 1`] = `
 Object {
-  "meta": Object {
-    "name": "loggedInUserId",
-    "quantity": undefined,
-    "verb": "RESET",
-  },
+  "meta": undefined,
   "payload": undefined,
   "type": "RESET_LOGGED_IN_USER_ID",
 }
@@ -146,19 +136,17 @@ Object {
 
 exports[`Redux Schemad 4 Reducer 1 Field 5 reset a field 2`] = `
 Object {
-  "loggedInUserId": "erty1234",
-  "settings": Object {},
+  "global": Object {
+    "loggedInUserId": "erty1234",
+    "settings": Object {},
+  },
   "users": Object {},
 }
 `;
 
 exports[`Redux Schemad 4 Reducer 2 Collection 1 add a child 1`] = `
 Object {
-  "meta": Object {
-    "name": "users",
-    "quantity": "ONE",
-    "verb": "ADD",
-  },
+  "meta": undefined,
   "payload": Object {
     "id": "abcd1234",
   },
@@ -168,23 +156,19 @@ Object {
 
 exports[`Redux Schemad 4 Reducer 2 Collection 1 add a child 2`] = `
 Object {
-  "loggedInUserId": "erty1234",
-  "settings": Object {},
+  "global": Object {
+    "loggedInUserId": "erty1234",
+    "settings": Object {},
+  },
   "users": Object {
-    "abcd1234": Object {
-      "id": "abcd1234",
-    },
+    "abcd1234": Object {},
   },
 }
 `;
 
 exports[`Redux Schemad 4 Reducer 2 Collection 2 add many children 1`] = `
 Object {
-  "meta": Object {
-    "name": "users",
-    "quantity": "MANY",
-    "verb": "ADD",
-  },
+  "meta": undefined,
   "payload": Array [
     Object {
       "id": "abcd1234",
@@ -199,26 +183,20 @@ Object {
 
 exports[`Redux Schemad 4 Reducer 2 Collection 2 add many children 2`] = `
 Object {
-  "loggedInUserId": "erty1234",
-  "settings": Object {},
+  "global": Object {
+    "loggedInUserId": "erty1234",
+    "settings": Object {},
+  },
   "users": Object {
-    "abcd1234": Object {
-      "id": "abcd1234",
-    },
-    "wxyz0987": Object {
-      "id": "wxyz0987",
-    },
+    "abcd1234": Object {},
+    "wxyz0987": Object {},
   },
 }
 `;
 
 exports[`Redux Schemad 4 Reducer 2 Collection 3 update a child 1`] = `
 Object {
-  "meta": Object {
-    "name": "users",
-    "quantity": "ONE",
-    "verb": "UPDATE",
-  },
+  "meta": undefined,
   "payload": Object {
     "id": "abcd1234",
     "name": "foobar",
@@ -229,11 +207,12 @@ Object {
 
 exports[`Redux Schemad 4 Reducer 2 Collection 3 update a child 2`] = `
 Object {
-  "loggedInUserId": "erty1234",
-  "settings": Object {},
+  "global": Object {
+    "loggedInUserId": "erty1234",
+    "settings": Object {},
+  },
   "users": Object {
     "abcd1234": Object {
-      "id": "abcd1234",
       "name": "foobar",
     },
   },
@@ -242,11 +221,7 @@ Object {
 
 exports[`Redux Schemad 4 Reducer 2 Collection 4 update many children 1`] = `
 Object {
-  "meta": Object {
-    "name": "users",
-    "quantity": "MANY",
-    "verb": "UPDATE",
-  },
+  "meta": undefined,
   "payload": Array [
     Object {
       "id": "abcd1234",
@@ -262,27 +237,22 @@ Object {
 
 exports[`Redux Schemad 4 Reducer 2 Collection 4 update many children 2`] = `
 Object {
-  "loggedInUserId": "erty1234",
-  "settings": Object {},
+  "global": Object {
+    "loggedInUserId": "erty1234",
+    "settings": Object {},
+  },
   "users": Object {
     "abcd1234": Object {
-      "id": "abcd1234",
       "name": "foobar",
     },
-    "wxyz0987": Object {
-      "id": "wxyz0987",
-    },
+    "wxyz0987": Object {},
   },
 }
 `;
 
 exports[`Redux Schemad 4 Reducer 2 Collection 5 remove a child 1`] = `
 Object {
-  "meta": Object {
-    "name": "users",
-    "quantity": "ONE",
-    "verb": "REMOVE",
-  },
+  "meta": undefined,
   "payload": Object {
     "id": "abcd1234",
   },
@@ -292,8 +262,10 @@ Object {
 
 exports[`Redux Schemad 4 Reducer 2 Collection 5 remove a child 2`] = `
 Object {
-  "loggedInUserId": "erty1234",
-  "settings": Object {},
+  "global": Object {
+    "loggedInUserId": "erty1234",
+    "settings": Object {},
+  },
   "users": Object {
     "wxyz0987": Object {
       "id": "wxyz0987",
@@ -304,11 +276,7 @@ Object {
 
 exports[`Redux Schemad 4 Reducer 2 Collection 6 remove many children 1`] = `
 Object {
-  "meta": Object {
-    "name": "users",
-    "quantity": "MANY",
-    "verb": "REMOVE",
-  },
+  "meta": undefined,
   "payload": Array [
     Object {
       "id": "abcd1234",
@@ -320,8 +288,10 @@ Object {
 
 exports[`Redux Schemad 4 Reducer 2 Collection 6 remove many children 2`] = `
 Object {
-  "loggedInUserId": "erty1234",
-  "settings": Object {},
+  "global": Object {
+    "loggedInUserId": "erty1234",
+    "settings": Object {},
+  },
   "users": Object {
     "wxyz0987": Object {
       "id": "wxyz0987",
@@ -332,11 +302,7 @@ Object {
 
 exports[`Redux Schemad 4 Reducer 2 Collection 7 reset the collection 1`] = `
 Object {
-  "meta": Object {
-    "name": "users",
-    "quantity": "MANY",
-    "verb": "RESET",
-  },
+  "meta": undefined,
   "payload": undefined,
   "type": "RESET_USERS",
 }
@@ -344,8 +310,22 @@ Object {
 
 exports[`Redux Schemad 4 Reducer 2 Collection 7 reset the collection 2`] = `
 Object {
-  "loggedInUserId": "erty1234",
-  "settings": Object {},
+  "global": Object {
+    "loggedInUserId": "erty1234",
+    "settings": Object {},
+  },
   "users": Object {},
+}
+`;
+
+exports[`Redux Schemad 5 Verify State 2 verifyStateKeysMiddleware 2 should report errors 1`] = `
+[MockFunction] {
+  "calls": Array [
+    Array [
+      "Top state has extra keys: foo
+\\"global\\" schema has extra keys: settings
+\\"users.a\\" state has extra keys: email",
+    ],
+  ],
 }
 `;

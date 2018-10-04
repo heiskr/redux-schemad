@@ -6,7 +6,9 @@ Create automatic reducers, actions, and default state from a state schema.
 
 I got tired of writing reducers, action creators, and looking up my state schema. I also didn't want to invest in a huge library; and I didn't want to totally abandon Redux. So here's some functions.
 
-This module intentionally only supports what's necessary to follow the spirit of [_Avoiding Accidental Complexity When Structuring Your App State_](https://hackernoon.com/avoiding-accidental-complexity-when-structuring-your-app-state-6e6d22ad5e2a) by Tal Kol.
+- TODO reference 2018 article
+- TODO reference [@acemarke/redux-starter-kit](https://github.com/markerikson/redux-starter-kit)
+- TODO update to reflect changes to work with ^^^
 
 ## Example
 

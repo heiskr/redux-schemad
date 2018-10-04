@@ -15,12 +15,13 @@
   },
   "license": "Apache-2.0",
   "author": "Kevin Heis",
-  "main": "index.js",
+  "main": "index.dist.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/heiskr/redux-schemad.git"
   },
   "scripts": {
+    "prepublishOnly": "babel index.js -o index.dist.js",
     "covreport": "open coverage/lcov-report/index.html",
     "precommit": "pretty-quick --staged",
     "lint": "eslint index.js test.js",
@@ -38,6 +39,9 @@
     }
   },
   "devDependencies": {
+    "@acemarke/redux-starter-kit": "0.0.7",
+    "babel-cli": "6.26.0",
+    "babel-preset-env": "1.7.0",
     "concurrently": "3.5.1",
     "eslint": "4.18.2",
     "eslint-config-airbnb-base": "12.1.0",
@@ -45,7 +49,8 @@
     "eslint-plugin-import": "2.9.0",
     "jest": "22.4.2",
     "prettier": "1.11.1",
-    "pretty-quick": "1.4.1"
+    "pretty-quick": "1.4.1",
+    "redux": "4.0.0"
   },
   "engines": {
     "node": ">=8.9.4"

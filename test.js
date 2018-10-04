@@ -1,27 +1,46 @@
 const {
-  field,
-  collection,
-  getFieldDefault,
+  createReducer,
+  combineReducers,
+} = require('@acemarke/redux-starter-kit')
+const {
+  mapObj,
+  // setField,
+  // updateField,
+  resetField,
+  addItem,
+  // addItems,
+  updateItem,
+  // updateItems,
+  removeItem,
+  // removeItems,
+  // resetItems,
+  // createAction,
+  // createFieldActionsMap,
+  // createGlobalActionsMap,
+  // createCollectionActionsMap,
   createDefaultState,
+  createSchemadReducer,
   createActionTypes,
   createActions,
-  findErrors,
-  getNewReducerState,
-  createReducer,
-  isRequired,
+  verifyStateKeys,
+  verifyStateKeysMiddleware,
 } = require('./index')
 
 describe('Redux Schemad', () => {
   const schema = {
-    loggedInUserId: field([isRequired], 'erty1234'),
-    settings: field([], {}),
-    users: collection('id', {
-      id: field([isRequired]),
-      name: field([], 'tester'),
-    }),
+    global: {
+      loggedInUserId: 'erty1234',
+      settings: {},
+    },
+    users: {
+      '[id]': {
+        id: '',
+        name: 'tester',
+      },
+    },
   }
   const defaultState = createDefaultState(schema)
-  const reducer = createReducer(schema)
+  const reducer = combineReducers(createSchemadReducer(schema, createReducer))
   const actions = createActions(schema)
   const actionTypes = createActionTypes(schema)
 
@@ -64,14 +83,20 @@ describe('Redux Schemad', () => {
       })
 
       test('4 update an object field not before though', () => {
-        const state = { ...defaultState, settings: null }
+        const state = {
+          ...defaultState,
+          global: { loggedInUserId: 'erty1234', settings: null },
+        }
         const action = actions.updateSettings({ email: false })
         expect(action).toMatchSnapshot()
         expect(reducer(state, action)).toMatchSnapshot()
       })
 
       test('5 reset a field', () => {
-        const state = { ...defaultState, loggedInUserId: 'abcd1234' }
+        const state = {
+          ...defaultState,
+          global: { loggedInUserId: 'abcd1234', settings: {} },
+        }
         const action = actions.resetLoggedInUserId()
         expect(action).toMatchSnapshot()
         expect(reducer(state, action)).toMatchSnapshot()
@@ -103,7 +128,7 @@ describe('Redux Schemad', () => {
       test('3 update a child', () => {
         const state = {
           ...defaultState,
-          users: { abcd1234: { id: 'abcd1234' } },
+          users: { abcd1234: {} },
         }
         const action = actions.updateUser({
           id: 'abcd1234',
@@ -116,7 +141,7 @@ describe('Redux Schemad', () => {
       test('4 update many children', () => {
         const state = {
           ...defaultState,
-          users: { abcd1234: { id: 'abcd1234' } },
+          users: { abcd1234: {} },
         }
         const action = actions.updateUsers([
           {
@@ -169,62 +194,76 @@ describe('Redux Schemad', () => {
     })
   })
 
-  describe('5 Edges', () => {
-    test('1 an action missing data', () => {
-      expect(reducer()).toEqual(defaultState)
-      expect(reducer(defaultState, {})).toEqual(defaultState)
-      expect(
-        reducer(defaultState, { type: 'FOO', meta: { name: 'FOO' } })
-      ).toEqual(defaultState)
-      expect(
-        reducer(defaultState, { type: 'FOO', meta: { verb: 'FOO' } })
-      ).toEqual(defaultState)
-    })
+  describe('5 Verify State', () => {
+    const goodState = {
+      global: {
+        loggedInUserId: 'erty1234',
+        settings: {},
+      },
+      users: {},
+    }
 
-    test('2 field not in schema', () => {
-      const prevWarn = global.console.warn
-      global.console.warn = jest.fn()
-      expect(
-        reducer(defaultState, {
-          type: 'FOO',
-          meta: { name: 'FOO', verb: 'FOO' },
-        })
-      ).toEqual(defaultState)
-      expect(global.console.warn).toBeCalled()
-      global.console.warn = prevWarn
-    })
+    const badState = {
+      global: {
+        loggedInUserId: 'erty1234',
+      },
+      users: {
+        a: {
+          name: 'abcd',
+          email: 'abcd@example.com',
+        },
+      },
+      foo: {},
+    }
 
-    test('3 invalid update', () => {
-      const prevWarn = global.console.warn
-      global.console.warn = jest.fn()
-      const action = actions.setLoggedInUserId(null)
-      expect(reducer(defaultState, action)).toEqual(defaultState)
-      expect(global.console.warn).toBeCalled()
-      global.console.warn = prevWarn
-    })
-
-    test('4 invalid field verb', () => {
-      const action = actions.setLoggedInUserId('abcd1234')
-      action.meta.verb = 'FOO'
-      expect(reducer(defaultState, action)).toEqual(defaultState)
-    })
-
-    test('5 invalid field verb', () => {
-      const action = actions.addUser({
-        id: 'abcd1234',
+    describe('1 verifyStateKeys', () => {
+      test('1 it should not find any errors', () => {
+        expect(verifyStateKeys(schema, goodState)).toHaveLength(0)
       })
-      action.meta.verb = 'FOO'
-      expect(reducer(defaultState, action)).toEqual(defaultState)
+
+      test('2 it should find all errors', () => {
+        expect(verifyStateKeys(schema, badState)).toHaveLength(3)
+      })
     })
 
-    test('6 call worthless back-ups', () => {
-      expect(getNewReducerState({}, {}, { meta: {} })).toEqual({})
-      expect(findErrors({ a: {} }, {})).toEqual([])
-      expect(findErrors(schema, { ...defaultState, users: null })).toEqual([])
-      expect(createActions({ a: {} })).toEqual({})
-      expect(createActionTypes({ a: {} })).toEqual({})
-      expect(getFieldDefault({})).toBe(null)
-      expect(getFieldDefault({ __field: true })).toBe(null)
+    describe('2 verifyStateKeysMiddleware', () => {
+      /* eslint-disable no-console */
+      const prevErr = console.error
+
+      beforeEach(() => {
+        console.error = jest.fn()
+      })
+
+      afterEach(() => {
+        console.error = prevErr
+      })
+
+      test('1 should not report errors', () => {
+        const store = { getState: () => goodState }
+        const next = jest.fn()
+        const action = {}
+        verifyStateKeysMiddleware(schema)(store)(next)(action)
+        expect(console.error).not.toBeCalled()
+      })
+
+      test('2 should report errors', () => {
+        const store = { getState: () => badState }
+        const next = jest.fn()
+        const action = {}
+        verifyStateKeysMiddleware(schema)(store)(next)(action)
+        expect(console.error).toMatchSnapshot()
+      })
+      /* eslint-enable */
+    })
+  })
+
+  describe('6 Extras', () => {
+    test('1 call other things...', () => {
+      mapObj({})
+      resetField()
+      addItem()
+      updateItem()
+      removeItem()
     })
   })
 })
